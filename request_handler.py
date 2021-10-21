@@ -1,6 +1,6 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer #importing here
 import json
-from entries import get_all_entries, get_single_entry
+from entries import get_all_entries, get_single_entry, delete_entry
 
 # Here's a class. It inherits from another class.
 # For now, think of a class as a container for functions that
@@ -85,6 +85,16 @@ class HandleRequests(BaseHTTPRequestHandler): #inheriting here; passing BaseHTTP
 
         # This weird code sends a response back to the client
         self.wfile.write(response.encode())
+
+    def do_DELETE(self):
+        self._set_headers(204)
+
+        (resource, id) = self.parse_url(self.path)
+
+        if resource == "entries":
+            delete_entry(id)
+
+        self.wfile.write("".encode())
 
 
 # This function is not inside the class. It is the starting
