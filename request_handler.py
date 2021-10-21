@@ -1,11 +1,13 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer #importing here
 import json
+from entries import get_all_entries, get_single_entry
 
 # Here's a class. It inherits from another class.
 # For now, think of a class as a container for functions that
 # work together for a common purpose. In this case, that
 # common purpose is to respond to HTTP requests from a client.
-class HandleRequests(BaseHTTPRequestHandler): #inheriting here
+class HandleRequests(BaseHTTPRequestHandler): #inheriting here; passing BaseHTTPRequestHandler as a parameter; we can now access all of its properties
+    # we build our own here so that we can pick and choose which properties we want to use
     # This is a Docstring it should be at the beginning of all classes and functions
     # It gives a description of the class or function
     """Controls the functionality of any GET, PUT, POST, DELETE requests to the server
@@ -35,6 +37,8 @@ class HandleRequests(BaseHTTPRequestHandler): #inheriting here
     # Here's a class function
     def _set_headers(self, status):
         # Notice this Docstring also includes information about the arguments passed to the function
+        # Header is where you put what type of content will be put in here; explaining how we are going to communicate
+        # Body will have the actual data in it
         """Sets the status code, Content-Type and Access-Control-Allow-Origin
         headers on the response
 
@@ -71,18 +75,12 @@ class HandleRequests(BaseHTTPRequestHandler): #inheriting here
         (resource, id) = self.parse_url(self.path)
 
         # It's an if..else statement
-        # if resource == "entries":
-        #     if id is not None:
-        #         response = f"{get_single_entry(id)}"
+        if resource == "entries":
+            if id is not None:
+                response = f"{get_single_entry(id)}"
 
-        #     else:
-        #         response = f"{get_all_entriess()}"
-        # if resource == "locations":
-        #     if id is not None:
-        #         response = f"{get_single_mood(id)}"
-
-        #     else:
-        #         response = f"{get_all_moods()}"
+            else:
+                response = f"{get_all_entries()}"
 
 
         # This weird code sends a response back to the client
