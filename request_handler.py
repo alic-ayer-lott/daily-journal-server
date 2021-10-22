@@ -1,6 +1,6 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer #importing here
 import json
-from entries import get_all_entries, get_single_entry, delete_entry
+from entries import get_all_entries, get_single_entry, delete_entry, search_for_entries
 
 # Here's a class. It inherits from another class.
 # For now, think of a class as a container for functions that
@@ -20,7 +20,19 @@ class HandleRequests(BaseHTTPRequestHandler): #inheriting here; passing BaseHTTP
         # at index 2.
         path_params = path.split("/") #defining path_params to return a list
         resource = path_params[1] #grabbing item at number 1 index
-        id = None 
+        
+        if "?" in resource:
+
+            param = resource.split("?")[1]
+            resource = resource.split("?")[0]
+            pair = param.split("=")
+            key = pair[0]
+            value = pair[1]
+
+            return ( resource, key, value)
+        
+        else:
+            id = None
 
         # Try to get the item at index 2
         try:
@@ -72,16 +84,23 @@ class HandleRequests(BaseHTTPRequestHandler): #inheriting here; passing BaseHTTP
         response = {}  # Default response
 
         # Parse the URL and capture the tuple that is returned
-        (resource, id) = self.parse_url(self.path)
+        parsed = self.parse_url(self.path)
 
-        # It's an if..else statement
-        if resource == "entries":
-            if id is not None:
-                response = f"{get_single_entry(id)}"
+        if len(parsed) == 2:
+            ( resource, id ) = parsed
 
-            else:
-                response = f"{get_all_entries()}"
+            if resource == "entries":
+                if id is not None:
+                    response = f"{get_single_entry(id)}"
 
+                else:
+                    response = f"{get_all_entries()}"
+            
+        elif len(parsed) == 3:
+            ( resource, key, value ) = parsed
+
+            if key == "search_term" and resource == "entries":
+                response = search_for_entries(value)
 
         # This weird code sends a response back to the client
         self.wfile.write(response.encode())
